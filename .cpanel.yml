@@ -1,3 +1,7 @@
+---
 deployment:
   tasks:
     - echo "Deployment ran"
+    - export DEPLOYPATH=/home/harbours/test.harboursidechildren.ca/
+    - /bin/cp -r static $DEPLOYPATH
+    - /bin/cp index.html $DEPLOYPATH
