@@ -1,7 +1,15 @@
 ---
 deployment:
   tasks:
-    - echo "Deployment ran"
+    - echo "Deploying HCC Website build files"
     - export DEPLOYPATH=/home/harbours/test.harboursidechildren.ca/
+    # Copy all static assets and files to deployment path
     - /bin/cp -r static $DEPLOYPATH
     - /bin/cp index.html $DEPLOYPATH
+    - /bin/cp manifest.json $DEPLOYPATH
+    - /bin/cp robots.txt $DEPLOYPATH
+    - /bin/cp favicon.ico $DEPLOYPATH
+    - /bin/cp -r images $DEPLOYPATH
+    - /bin/cp -r documents $DEPLOYPATH
+    - /bin/cp -r api $DEPLOYPATH
+    - echo "Deployment completed successfully"
