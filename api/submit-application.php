@@ -38,68 +38,61 @@ $emailBody .= "========================\n\n";
 
 // Student Information
 $emailBody .= "STUDENT INFORMATION:\n";
+$emailBody .= "-------------------\n";
 $emailBody .= "Name: " . $data['student']['firstName'] . " " . $data['student']['lastName'] . "\n";
 $emailBody .= "Date of Birth: " . $data['student']['dateOfBirth'] . "\n";
-$emailBody .= "Gender: " . $data['student']['gender'] . "\n";
-$emailBody .= "Address: " . $data['student']['homeAddress'] . "\n";
+$emailBody .= "Gender: " . ucfirst($data['student']['gender']) . "\n";
+$emailBody .= "Home Address: " . $data['student']['homeAddress'] . "\n";
 $emailBody .= "City: " . $data['student']['city'] . "\n";
-$emailBody .= "Zip Code: " . $data['student']['zipCode'] . "\n\n";
+$emailBody .= "Zip/Postal Code: " . $data['student']['zipCode'] . "\n\n";
 
-// Parent Information
-$emailBody .= "PARENT/GUARDIAN INFORMATION:\n";
+// Primary Parent/Guardian Information
+$emailBody .= "PRIMARY PARENT/GUARDIAN:\n";
+$emailBody .= "------------------------\n";
 $emailBody .= "Name: " . $data['parent']['parentFirstName'] . " " . $data['parent']['parentLastName'] . "\n";
 $emailBody .= "Email: " . $data['parent']['parentEmail'] . "\n";
 $emailBody .= "Phone: " . $data['parent']['parentPhone'] . "\n";
-$emailBody .= "Work Address: " . $data['parent']['workAddress'] . "\n";
-$emailBody .= "Work Phone: " . $data['parent']['workPhone'] . "\n";
-$emailBody .= "Relationship: " . $data['parent']['relationship'] . "\n\n";
+$emailBody .= "Relationship: " . $data['parent']['relationship'] . "\n";
+$emailBody .= "Work Address: " . (!empty($data['parent']['workAddress']) ? $data['parent']['workAddress'] : 'Not provided') . "\n";
+$emailBody .= "Work Phone: " . (!empty($data['parent']['workPhone']) ? $data['parent']['workPhone'] : 'Not provided') . "\n\n";
+
+// Second Parent/Guardian (Optional)
+if (!empty($data['parent2']['parentFirstName']) || !empty($data['parent2']['parentLastName'])) {
+    $emailBody .= "SECOND PARENT/GUARDIAN:\n";
+    $emailBody .= "-----------------------\n";
+    $emailBody .= "Name: " . $data['parent2']['parentFirstName'] . " " . $data['parent2']['parentLastName'] . "\n";
+    $emailBody .= "Email: " . (!empty($data['parent2']['parentEmail']) ? $data['parent2']['parentEmail'] : 'Not provided') . "\n";
+    $emailBody .= "Phone: " . (!empty($data['parent2']['parentPhone']) ? $data['parent2']['parentPhone'] : 'Not provided') . "\n";
+    $emailBody .= "Relationship: " . (!empty($data['parent2']['relationship']) ? $data['parent2']['relationship'] : 'Not provided') . "\n";
+    $emailBody .= "Work Address: " . (!empty($data['parent2']['workAddress']) ? $data['parent2']['workAddress'] : 'Not provided') . "\n";
+    $emailBody .= "Work Phone: " . (!empty($data['parent2']['workPhone']) ? $data['parent2']['workPhone'] : 'Not provided') . "\n\n";
+}
 
 // Classroom Request
 $emailBody .= "CLASSROOM REQUEST:\n";
+$emailBody .= "------------------\n";
 $emailBody .= "Preferred Classroom: " . $data['classroomRequest']['classroom'] . "\n";
 $emailBody .= "Requested Days: " . $data['classroomRequest']['requestedDays'] . "\n";
-$emailBody .= "Start Date: " . $data['classroomRequest']['startDate'] . "\n";
+$emailBody .= "Requested Start Date: " . (!empty($data['classroomRequest']['startDate']) ? $data['classroomRequest']['startDate'] : 'Not specified') . "\n";
 $emailBody .= "Space Preference: " . $data['classroomRequest']['spacePreference'] . "\n\n";
 
-// Emergency Contact 1
-$emailBody .= "PRIMARY EMERGENCY CONTACT:\n";
-$emailBody .= "Name: " . $data['emergencyContact1']['name'] . "\n";
-$emailBody .= "Phone: " . $data['emergencyContact1']['phone'] . "\n";
-$emailBody .= "Secondary Phone: " . $data['emergencyContact1']['secondaryPhone'] . "\n";
-$emailBody .= "Email: " . $data['emergencyContact1']['email'] . "\n";
-$emailBody .= "Relationship: " . $data['emergencyContact1']['relationship'] . "\n";
-$emailBody .= "Occupation: " . $data['emergencyContact1']['occupation'] . "\n";
-$emailBody .= "Employer: " . $data['emergencyContact1']['employer'] . "\n\n";
+// Final Questions
+$emailBody .= "ADDITIONAL INFORMATION:\n";
+$emailBody .= "-----------------------\n";
+$emailBody .= "How did you hear about us: " . $data['finalQuestions']['howDidYouHear'] . "\n";
+$emailBody .= "Acknowledged Terms: " . ($data['finalQuestions']['acknowledgment'] ? 'Yes' : 'No') . "\n\n";
 
-// Emergency Contact 2
-if (!empty($data['emergencyContact2']['name'])) {
-    $emailBody .= "ADDITIONAL EMERGENCY CONTACT:\n";
-    $emailBody .= "Name: " . $data['emergencyContact2']['name'] . "\n";
-    $emailBody .= "Phone: " . $data['emergencyContact2']['phone'] . "\n";
-    $emailBody .= "Secondary Phone: " . $data['emergencyContact2']['secondaryPhone'] . "\n";
-    $emailBody .= "Email: " . $data['emergencyContact2']['email'] . "\n";
-    $emailBody .= "Relationship: " . $data['emergencyContact2']['relationship'] . "\n";
-    $emailBody .= "Occupation: " . $data['emergencyContact2']['occupation'] . "\n";
-    $emailBody .= "Employer: " . $data['emergencyContact2']['employer'] . "\n\n";
-}
+// Submission Metadata
+$emailBody .= "SUBMISSION DETAILS:\n";
+$emailBody .= "-------------------\n";
+$emailBody .= "Submitted: " . date('F j, Y \a\t g:i A') . "\n";
+$emailBody .= "IP Address: " . $_SERVER['REMOTE_ADDR'] . "\n\n";
 
-// Medical Information
-$emailBody .= "MEDICAL INFORMATION:\n";
-$emailBody .= "Physician: " . $data['medical']['physician'] . "\n";
-$emailBody .= "Physician Phone: " . $data['medical']['physicianPhone'] . "\n";
-$emailBody .= "Allergies: " . $data['medical']['allergies'] . "\n";
-$emailBody .= "Medications: " . $data['medical']['medications'] . "\n";
-$emailBody .= "Medical Conditions: " . $data['medical']['medicalConditions'] . "\n";
-$emailBody .= "Immunizations: " . $data['medical']['immunizations'] . "\n\n";
-
-// Agreements
-$emailBody .= "AGREEMENTS & CONSENT:\n";
-$emailBody .= "Parent Contract: " . ($data['agreements']['parentContract'] ? 'Yes' : 'No') . "\n";
-$emailBody .= "Web Consent: " . ($data['agreements']['webConsent'] ? 'Yes' : 'No') . "\n";
-$emailBody .= "Photo Consent: " . ($data['agreements']['photoConsent'] ? 'Yes' : 'No') . "\n\n";
-
-$emailBody .= "Submitted on: " . date('Y-m-d H:i:s') . "\n";
-$emailBody .= "IP Address: " . $_SERVER['REMOTE_ADDR'] . "\n";
+// Add raw JSON data for testing/debugging
+$emailBody .= "========================\n";
+$emailBody .= "RAW JSON DATA (for testing):\n";
+$emailBody .= "========================\n";
+$emailBody .= json_encode($data, JSON_PRETTY_PRINT) . "\n";
 
 // Email headers
 $headers = "From: " . FROM_EMAIL . "\r\n";
@@ -114,14 +107,23 @@ if ($success) {
     if (SEND_CONFIRMATION) {
         $confirmationSubject = "Application Received - " . ORG_NAME;
         $confirmationBody = "Dear " . $data['parent']['parentFirstName'] . ",\n\n";
-        $confirmationBody .= "Thank you for submitting your application for " . $data['student']['firstName'] . " " . $data['student']['lastName'] . ".\n\n";
-        $confirmationBody .= "We have received your application and will review it shortly. A member of our team will contact you within 2-3 business days.\n\n";
-        $confirmationBody .= "If you have any questions, please don't hesitate to contact us at " . ORG_PHONE . ".\n\n";
+        $confirmationBody .= "Thank you for submitting an application for " . $data['student']['firstName'] . " " . $data['student']['lastName'] . ".\n\n";
+        $confirmationBody .= "We have received your application and will review it shortly.\n\n";
+        $confirmationBody .= "APPLICATION SUMMARY:\n";
+        $confirmationBody .= "-------------------\n";
+        $confirmationBody .= "Student Name: " . $data['student']['firstName'] . " " . $data['student']['lastName'] . "\n";
+        $confirmationBody .= "Requested Classroom: " . $data['classroomRequest']['classroom'] . "\n";
+        $confirmationBody .= "Requested Days: " . $data['classroomRequest']['requestedDays'] . "\n";
+        $confirmationBody .= "Submitted: " . date('F j, Y \a\t g:i A') . "\n\n";
+        $confirmationBody .= "IMPORTANT REMINDER:\n";
+        $confirmationBody .= "Once a space is secured, you will need to pay a non-refundable application fee of $150.00 and a non-refundable 'Space Deposit' equivalent to half a month's fees. The Space Deposit will be applied toward your child's first month's fees.\n\n";
+        $confirmationBody .= "If you have any questions in the meantime, please don't hesitate to contact us at " . ORG_PHONE . " or reply to this email.\n\n";
         $confirmationBody .= "Best regards,\n";
         $confirmationBody .= ORG_NAME . "\n";
-        $confirmationBody .= REPLY_TO_EMAIL;
+        $confirmationBody .= ORG_PHONE;
         
         $confirmationHeaders = "From: " . FROM_EMAIL . "\r\n";
+        $confirmationHeaders .= "Reply-To: " . REPLY_TO_EMAIL . "\r\n";
         $confirmationHeaders .= "Content-Type: text/plain; charset=UTF-8\r\n";
         
         mail($data['parent']['parentEmail'], $confirmationSubject, $confirmationBody, $confirmationHeaders);

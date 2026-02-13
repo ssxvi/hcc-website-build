@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Application Submission</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        button { background: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #45a049; }
+        .result { margin-top: 20px; padding: 15px; border-radius: 5px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        pre { background: #f4f4f4; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Test Application Form Submission</h1>
+    <p>This will send a test application to your PHP backend and Google Sheets.</p>
+    
+    <button onclick="testSubmission()">Send Test Application</button>
+    
+    <div id="result"></div>
+
+    <script>
+        async function testSubmission() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>Sending test application...</p>';
+            
+            const testData = {
+                student: {
+                    firstName: 'Test',
+                    lastName: 'Student',
+                    dateOfBirth: '2020-01-15',
+                    gender: 'female',
+                    homeAddress: '123 Test Street',
+                    city: 'North Vancouver',
+                    zipCode: 'V7M 1A1'
+                },
+                parent: {
+                    parentFirstName: 'Test',
+                    parentLastName: 'Parent',
+                    parentEmail: 'test@example.com',
+                    parentPhone: '604-555-1234',
+                    workAddress: '456 Work Ave',
+                    workPhone: '604-555-5678',
+                    relationship: 'Mother'
+                },
+                parent2: {
+                    parentFirstName: 'Second',
+                    parentLastName: 'Parent',
+                    parentEmail: 'second@example.com',
+                    parentPhone: '604-555-9999',
+                    workAddress: '',
+                    workPhone: '',
+                    relationship: 'Father'
+                },
+                classroomRequest: {
+                    classroom: 'toddler',
+                    requestedDays: '3-days-mon-tue-wed',
+                    startDate: '2026-03-01',
+                    spacePreference: 'Full-time'
+                },
+                finalQuestions: {
+                    howDidYouHear: 'Google Search',
+                    acknowledgment: true
+                }
+            };
+
+            try {
+                // Test PHP endpoint
+                const phpResponse = await fetch('/api/submit-application.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testData)
+                });
+
+                const phpResult = await phpResponse.json();
+                
+                let html = '<div class="result ' + (phpResponse.ok ? 'success' : 'error') + '">';
+                html += '<h3>PHP Backend Result:</h3>';
+                html += '<pre>' + JSON.stringify(phpResult, null, 2) + '</pre>';
+                html += '</div>';
+                
+                resultDiv.innerHTML = html;
+
+                if (phpResponse.ok) {
+                    alert('✅ Test successful! Check your email at admissions@harboursidechildren.ca');
+                } else {
+                    alert('❌ Test failed. Check the error message below.');
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="result error"><h3>Error:</h3><pre>' + error.message + '</pre></div>';
+                alert('❌ Connection error: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

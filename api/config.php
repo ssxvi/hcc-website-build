@@ -2,9 +2,9 @@
 // Email Configuration
 // Update these settings for your email setup
 
-define('ADMIN_EMAIL', 'admin@harbourside.ca'); // Change to your admin email
-define('FROM_EMAIL', 'noreply@harbourside.ca'); // Change to your domain email
-define('REPLY_TO_EMAIL', 'admin@harbourside.ca'); // Change to your reply-to email
+define('ADMIN_EMAIL', 'trevor@harboursidechildren.ca'); // Main email to receive applications
+define('FROM_EMAIL', 'trevor@harboursidechildren.ca'); // Must be a real email from your domain
+define('REPLY_TO_EMAIL', 'trevor@harboursidechildren.ca'); // Where replies go
 
 // Organization Info
 define('ORG_NAME', "Harbourside Children's Center");
@@ -15,5 +15,5 @@ define('SEND_CONFIRMATION', true); // Set to false to disable confirmation email
 define('INCLUDE_IP_ADDRESS', true); // Set to false to not include IP address in submissions
 
 // For debugging - set to true to see detailed error messages
-define('DEBUG_MODE', false);
+define('DEBUG_MODE', true);
 ?>
