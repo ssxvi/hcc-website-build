@@ -1,5 +1,5 @@
 <?php
-require_once 'config.php';
+require_once __DIR__ . '/config.php';
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
@@ -29,8 +29,22 @@ if (!$data) {
 }
 
 // Email configuration from config file
-$to = ADMIN_EMAIL;
-$subject = 'New Application Submission - ' . $data['student']['firstName'] . ' ' . $data['student']['lastName'];
+$adminRecipients = array_values(array_filter([
+    defined('ADMIN_EMAIL1') ? ADMIN_EMAIL1 : null,
+    defined('ADMIN_EMAIL2') ? ADMIN_EMAIL2 : null,
+    defined('ADMIN_EMAIL3') ? ADMIN_EMAIL3 : null,
+    defined('ADMIN_EMAIL4') ? ADMIN_EMAIL4 : null,
+]));
+
+if (empty($adminRecipients)) {
+    http_response_code(500);
+    echo json_encode(['error' => 'No admin recipient configured in config.php']);
+    exit();
+}
+
+$studentFirstName = $data['student']['firstName'] ?? '';
+$studentLastName = $data['student']['lastName'] ?? '';
+$subject = 'New Application Submission - ' . trim($studentFirstName . ' ' . $studentLastName);
 
 // Create email content
 $emailBody = "New Application Submission\n";
@@ -86,29 +100,38 @@ $emailBody .= "Acknowledged Terms: " . ($data['finalQuestions']['acknowledgment'
 $emailBody .= "SUBMISSION DETAILS:\n";
 $emailBody .= "-------------------\n";
 $emailBody .= "Submitted: " . date('F j, Y \a\t g:i A') . "\n";
-$emailBody .= "IP Address: " . $_SERVER['REMOTE_ADDR'] . "\n\n";
+if (defined('INCLUDE_IP_ADDRESS') && INCLUDE_IP_ADDRESS) {
+    $emailBody .= "IP Address: " . ($_SERVER['REMOTE_ADDR'] ?? 'Unknown') . "\n";
+}
+$emailBody .= "\n";
 
 // Add raw JSON data for testing/debugging
-$emailBody .= "========================\n";
-$emailBody .= "RAW JSON DATA (for testing):\n";
-$emailBody .= "========================\n";
-$emailBody .= json_encode($data, JSON_PRETTY_PRINT) . "\n";
+// $emailBody .= "========================\n";
+// $emailBody .= "RAW JSON DATA (for testing):\n";
+// $emailBody .= "========================\n";
+// $emailBody .= json_encode($data, JSON_PRETTY_PRINT) . "\n";
 
 // Email headers
 $headers = "From: " . FROM_EMAIL . "\r\n";
-$headers .= "Reply-To: " . $data['parent']['parentEmail'] . "\r\n";
+$replyTo = !empty($data['parent']['parentEmail']) ? $data['parent']['parentEmail'] : (defined('REPLY_TO_EMAIL') ? REPLY_TO_EMAIL : FROM_EMAIL);
+$headers .= "Reply-To: " . $replyTo . "\r\n";
 $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
 
-// Send email
-$success = mail($to, $subject, $emailBody, $headers);
+// Send email to all configured admin recipients
+$success = true;
+foreach ($adminRecipients as $recipient) {
+    if (!mail($recipient, $subject, $emailBody, $headers)) {
+        $success = false;
+    }
+}
 
 if ($success) {
     // Also send confirmation email to parent if enabled
-    if (SEND_CONFIRMATION) {
+    if (SEND_CONFIRMATION && !empty($data['parent']['parentEmail'])) {
         $confirmationSubject = "Application Received - " . ORG_NAME;
         $confirmationBody = "Dear " . $data['parent']['parentFirstName'] . ",\n\n";
         $confirmationBody .= "Thank you for submitting an application for " . $data['student']['firstName'] . " " . $data['student']['lastName'] . ".\n\n";
-        $confirmationBody .= "We have received your application and will review it shortly.\n\n";
+        $confirmationBody .= "We have received your application and will review it within 2-3 business days.\n\n";
         $confirmationBody .= "APPLICATION SUMMARY:\n";
         $confirmationBody .= "-------------------\n";
         $confirmationBody .= "Student Name: " . $data['student']['firstName'] . " " . $data['student']['lastName'] . "\n";
@@ -117,7 +140,7 @@ if ($success) {
         $confirmationBody .= "Submitted: " . date('F j, Y \a\t g:i A') . "\n\n";
         $confirmationBody .= "IMPORTANT REMINDER:\n";
         $confirmationBody .= "Once a space is secured, you will need to pay a non-refundable application fee of $150.00 and a non-refundable 'Space Deposit' equivalent to half a month's fees. The Space Deposit will be applied toward your child's first month's fees.\n\n";
-        $confirmationBody .= "If you have any questions in the meantime, please don't hesitate to contact us at " . ORG_PHONE . " or reply to this email.\n\n";
+        $confirmationBody .= "If you have any questions in the meantime, you can reply to this email or call us at " . ORG_PHONE . " during our hours.\n\n";
         $confirmationBody .= "Best regards,\n";
         $confirmationBody .= ORG_NAME . "\n";
         $confirmationBody .= ORG_PHONE;
@@ -126,7 +149,7 @@ if ($success) {
         $confirmationHeaders .= "Reply-To: " . REPLY_TO_EMAIL . "\r\n";
         $confirmationHeaders .= "Content-Type: text/plain; charset=UTF-8\r\n";
         
-        mail($data['parent']['parentEmail'], $confirmationSubject, $confirmationBody, $confirmationHeaders);
+        @mail($data['parent']['parentEmail'], $confirmationSubject, $confirmationBody, $confirmationHeaders);
     }
     
     echo json_encode(['success' => true, 'message' => 'Application submitted successfully']);
